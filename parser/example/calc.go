@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/hydra13142/parser"
+	"github.com/chnlab/parser"
 )
 
 var express = &parser.Pattern{}

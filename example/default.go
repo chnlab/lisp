@@ -1,6 +1,6 @@
 package main
 
-import "github.com/hydra13142/lisp"
+import "github.com/chnlab/lisp"
 
 func main() {
 	console := lisp.NewLisp()

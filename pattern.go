@@ -1,6 +1,6 @@
 package lisp
 
-import "github.com/hydra13142/lisp/parser"
+import "github.com/chnlab/lisp/parser"
 
 func init() {
 	bnd := func(c byte) bool {
