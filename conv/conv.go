@@ -2,7 +2,7 @@ package conv
 
 import (
 	"github.com/chnlab/lisp"
-	"github.com/chnlab/parser"
+	"github.com/chnlab/lisp/parser"
 )
 
 func Int(t []lisp.Token, p *lisp.Lisp) (lisp.Token, error) {
