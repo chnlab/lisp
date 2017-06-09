@@ -127,7 +127,7 @@ Text只可能装入如下类型：[]Token、int64、float64、string、Name、Ho
 
 对应的Kind值分别为如下：List、Int、Float、String、Macro、Label、Front、Back
 
-交互模式和lsp文件中都支持注释，只有一种注释形式：‘#’及该行剩余部分被忽略
+交互模式和lsp文件中都支持注释，只有一种注释形式：‘;’及该行剩余部分被忽略
 
 注意的是为了实现惰性求值，你添加的函数接收到的切片，每个元素都是未运算的，需要你进行运算或解包
 

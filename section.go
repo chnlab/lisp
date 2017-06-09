@@ -8,6 +8,7 @@ type section struct {
 
 func (b *section) feed(s []byte) error {
 	single := false
+
 	for i, l := 0, len(s); i < l; i++ {
 		if b.quote {
 			switch s[i] {
@@ -16,6 +17,7 @@ func (b *section) feed(s []byte) error {
 			case '\\':
 				i++
 			}
+
 		} else if single {
 			switch s[i] {
 			case '\'':
@@ -23,6 +25,7 @@ func (b *section) feed(s []byte) error {
 			case '\\':
 				i++
 			}
+
 		} else {
 			switch s[i] {
 			case '(':
@@ -40,14 +43,17 @@ func (b *section) feed(s []byte) error {
 				}
 			case '"':
 				b.quote = true
-			case '#':
+
+			case ';':
 				s, l = s[:i], i
 			}
 		}
 	}
+
 	if single || b.count < 0 {
 		return ErrUnquote
 	}
+
 	b.total += string(s)
 	return nil
 }
