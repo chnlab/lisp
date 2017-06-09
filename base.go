@@ -50,7 +50,6 @@ var (
 
 	ErrNotOver = errors.New("Cannot scan to the end")
 	ErrUnquote = errors.New("Quote is unfold")
-	ErrNotFind = errors.New("Not find this Name")
 	ErrNotFunc = errors.New("Not a function")
 	ErrParaNum = errors.New("Wrong parament number")
 	ErrFitType = errors.New("Lisp type is wrong")
@@ -96,3 +95,8 @@ func (m Hong) String() string {
 func (l Lfac) String() string {
 	return fmt.Sprintf("{front : %v => %v}", l.Para, l.Text)
 }
+
+func ErrNotFind(name string) error {
+    return errors.New("Symbol not found: " + name)
+}
+

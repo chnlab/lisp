@@ -1,6 +1,7 @@
 package lisp
 
 func init() {
+
 	Add("builtin", func(t []Token, p *Lisp) (Token, error) {
 		if len(t) != 1 {
 			return None, ErrParaNum
@@ -8,12 +9,15 @@ func init() {
 		if t[0].Kind != Label {
 			return None, ErrFitType
 		}
+
 		ans, ok := Global.env[t[0].Text.(Name)]
 		if !ok {
-			return None, ErrNotFind
+            name := t[0].Text.(string)
+			return None, ErrNotFind(name)
 		}
 		return ans, nil
 	})
+
 	Add("define", func(t []Token, p *Lisp) (ans Token, err error) {
 		if len(t) != 2 {
 			return None, ErrParaNum
@@ -47,6 +51,7 @@ func init() {
 		}
 		return None, ErrFitType
 	})
+
 	Add("update", func(t []Token, p *Lisp) (ans Token, err error) {
 		if len(t) != 2 {
 			return None, ErrParaNum
@@ -91,12 +96,14 @@ func init() {
 				}
 			}
 		}
+
 		_, ok := p.env[n]
 		if !ok {
-			return None, ErrNotFind
+			return None, ErrNotFind(string(n))
 		}
 		return None, ErrRefused
 	})
+
 	Add("remove", func(t []Token, p *Lisp) (ans Token, err error) {
 		if len(t) != 1 {
 			return None, ErrParaNum
@@ -112,12 +119,14 @@ func init() {
 				return None, nil
 			}
 		}
+
 		_, ok := p.env[n]
 		if !ok {
-			return None, ErrNotFind
+			return None, ErrNotFind(string(n))
 		}
 		return None, ErrRefused
 	})
+
 	Add("present", func(t []Token, p *Lisp) (ans Token, err error) {
 		if len(t) != 0 {
 			return None, ErrParaNum
@@ -128,6 +137,7 @@ func init() {
 		}
 		return Token{List, x}, nil
 	})
+
 	Add("context", func(t []Token, p *Lisp) (ans Token, err error) {
 		if len(t) != 0 {
 			return None, ErrParaNum
@@ -140,6 +150,7 @@ func init() {
 		}
 		return Token{List, x}, nil
 	})
+
 	Add("clear", func(t []Token, p *Lisp) (ans Token, err error) {
 		if len(t) != 0 {
 			return None, ErrParaNum
@@ -148,3 +159,4 @@ func init() {
 		return None, nil
 	})
 }
+
