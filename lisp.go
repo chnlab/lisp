@@ -166,7 +166,7 @@ func (l *Lisp) Exec(f Token) (ans Token, err error) {
             return q.Exec(Token{List, lp.Text})
 
         default:
-            return None, ErrNotFunc
+            return None, ErrNotFunc(f.String())
         }
 
     default:

@@ -50,7 +50,6 @@ var (
 
 	ErrNotOver = errors.New("Cannot scan to the end")
 	ErrUnquote = errors.New("Quote is unfold")
-	ErrNotFunc = errors.New("Not a function")
 	ErrParaNum = errors.New("Wrong parament number")
 	ErrFitType = errors.New("Lisp type is wrong")
 	ErrNotName = errors.New("This's not a Name")
@@ -59,6 +58,16 @@ var (
 	ErrRefused = errors.New("Can't remove a back function")
 	ErrIsClose = errors.New("Channel has been closed")
 )
+
+func ErrNotFind(name string) error {
+    return errors.New("Symbol not found: " + name)
+}
+
+func ErrNotFunc(name string) error {
+    return errors.New("Not a function: " + name)
+}
+
+
 
 func (t Kind) String() string {
 	switch t {
@@ -94,9 +103,5 @@ func (m Hong) String() string {
 
 func (l Lfac) String() string {
 	return fmt.Sprintf("{front : %v => %v}", l.Para, l.Text)
-}
-
-func ErrNotFind(name string) error {
-    return errors.New("Symbol not found: " + name)
 }
 
