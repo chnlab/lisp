@@ -7,18 +7,25 @@ type Token struct {
 	Text interface{}
 }
 
+// FIXME 这个应该和 atom 等价
 func (t *Token) Bool() bool {
 	switch t.Kind {
+
 	case Null:
 		return false
+
 	case Int:
 		return t.Text.(int64) != 0
+
 	case Float:
 		return t.Text.(float64) != 0
+
 	case String:
 		return t.Text.(string) != ""
+
 	case Chan:
 		return len(t.Text.(chan Token)) != 0
+
 	case List:
 		return len(t.Text.([]Token)) != 0
 	}
@@ -149,11 +156,15 @@ func (t *Token) Cmp(p *Token) int {
 
 func (t Token) String() string {
 	switch t.Kind {
+
 	case Null:
 		return ""
+
 	case Chan:
 		return "channel"
+
 	default:
 		return fmt.Sprint(t.Text)
 	}
 }
+
