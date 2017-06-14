@@ -81,29 +81,7 @@ func init() {
 
 	Add("for", func(t []Token, p *Lisp) (Token, error) {
 
-		if len(t) == 2 {
-            for {
-                a, err := p.Exec(t[0])
-                if err != nil {
-                    return None, err
-                }
-
-                if !a.Bool() {
-                    break
-                }
-
-                _, err = p.Exec(t[1])
-                if err != nil {
-                    return None, err
-                }
-            }
-            return None, nil
-        }
-
-		if len(t) == 3 {
-            if t[0].Kind != Label {
-                return None, ErrFitType
-            }
+        if t[0].Kind == Label {
 
             iter, err := p.Exec(t[1])
             if err != nil {
@@ -119,17 +97,37 @@ func init() {
 
             for _, v := range iter.Text.([]Token) {
                 local.env[iterName] = v
-                _, err = local.Exec(t[2])
 
-                if err != nil {
-                    return None, err
+                for _, element := range(t[2:]) {
+                    _, err = local.Exec(element)
+                    if err != nil {
+                        return None, err
+                    }
                 }
             }
 
             return None, nil
-        }
 
-        return None, ErrParaNum
+        } else {
+            for {
+                a, err := p.Exec(t[0])
+                if err != nil {
+                    return None, err
+                }
+
+                if !a.Bool() {
+                    break
+                }
+
+                for _, element := range(t[1:]) {
+                    _, err = p.Exec(element)
+                    if err != nil {
+                        return None, err
+                    }
+                }
+            }
+            return None, nil
+        }
 	})
 }
 
