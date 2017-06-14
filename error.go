@@ -22,14 +22,12 @@ func init() {
 	})
 
 	Add("catch", func(t []Token, p *Lisp) (Token, error) {
-		if len(t) != 1 {
-			return None, ErrParaNum
-		}
-
-		_, err := p.Exec(t[0])
-		if err != nil {
-			return Token{String, fmt.Sprint(err)}, nil
-		}
+        for _, list := range t {
+            _, err := p.Exec(list)
+            if err != nil {
+                return Token{String, fmt.Sprint(err)}, nil
+            }
+        }
 
 		return None, nil
 	})

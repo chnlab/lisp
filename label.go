@@ -6,6 +6,7 @@ func init() {
 		if len(t) != 1 {
 			return None, ErrParaNum
 		}
+
 		if t[0].Kind != Label {
 			return None, ErrFitType
 		}
@@ -19,25 +20,41 @@ func init() {
 	})
 
 	Add("define", func(t []Token, p *Lisp) (ans Token, err error) {
-		if len(t) != 2 {
+		if len(t) < 2 {
 			return None, ErrParaNum
 		}
-		a, b := t[0], t[1]
-		switch a.Kind {
+        left, right := t[0], t[1]
+
+		switch left.Kind {
 		case Label:
-			ans, err = p.Exec(b)
+            if len(t) != 2 {
+                return None, ErrParaNum
+            }
+
+			ans, err = p.Exec(right)
 			if err == nil {
-				p.env[a.Text.(Name)] = ans
+				p.env[left.Text.(Name)] = ans
 			}
 			return ans, err
+
 		case List:
-			if b.Kind != List {
+            if len(t) > 2 {
+                eachList := make([]Token, len(t))
+                eachList[0] = Token{Label, Name("each")}
+                eachList = append(eachList, t[1:]...)
+
+                right = Token{List, eachList}
+            }
+
+			if right.Kind != List {
 				return None, ErrFitType
 			}
-			t = a.Text.([]Token)
+
+			t = left.Text.([]Token)
 			if len(t) <= 0 {
 				return None, ErrParaNum
 			}
+
 			x := make([]Name, len(t))
 			for i, c := range t {
 				if c.Kind != Label {
@@ -45,10 +62,12 @@ func init() {
 				}
 				x[i] = c.Text.(Name)
 			}
-			ans = Token{Front, &Lfac{x[1:], b.Text.([]Token), p}}
+
+			ans = Token{Front, &Lfac{x[1:], right.Text.([]Token), p}}
 			p.env[x[0]] = ans
 			return ans, nil
 		}
+
 		return None, ErrFitType
 	})
 
@@ -56,23 +75,30 @@ func init() {
 		if len(t) != 2 {
 			return None, ErrParaNum
 		}
+
 		a, b := t[0], t[1]
 		var n Name
+
 		switch a.Kind {
 		case Label:
 			n = a.Text.(Name)
+
 		case List:
 			if b.Kind != List {
 				return None, ErrFitType
 			}
+
 			t = a.Text.([]Token)
 			if len(t) <= 0 {
 				return None, ErrParaNum
 			}
+
 			n = t[0].Text.(Name)
+
 		default:
 			return None, ErrFitType
 		}
+
 		for v := p; p != Global; p = p.dad {
 			_, ok := p.env[n]
 			if ok {
@@ -82,14 +108,16 @@ func init() {
 						p.env[n] = ans
 					}
 					return ans, err
+
 				} else {
-					x := make([]Name, len(t)-1)
+					x := make([]Name, len(t) - 1)
 					for i, c := range t[1:] {
 						if c.Kind != Label {
 							return None, ErrNotName
 						}
 						x[i] = c.Text.(Name)
 					}
+
 					ans = Token{Front, &Lfac{x, b.Text.([]Token), p}}
 					v.env[n] = ans
 					return ans, nil
@@ -101,6 +129,7 @@ func init() {
 		if !ok {
 			return None, ErrNotFind(string(n))
 		}
+
 		return None, ErrRefused
 	})
 
