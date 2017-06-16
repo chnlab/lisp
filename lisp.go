@@ -75,6 +75,29 @@ func (l *Lisp) Exec(f Token) (ans Token, err error) {
         }
 
         switch ct.Kind {
+
+        case Back:
+            return ct.Text.(Gfac)(ls[1:], l)
+
+        case Front:
+            lp := ct.Text.(*Lfac)
+            if len(ls) != len(lp.Para)+1 {
+                return None, ErrParaNum
+            }
+
+            q := &Lisp{dad: lp.Make, env: map[Name]Token{}}
+            q.env[Name("self")] = ct
+            for i, t := range ls[1:] {
+                q.env[lp.Para[i]], err = l.Exec(t)
+                if err != nil {
+                    return None, err
+                }
+            }
+            return q.Exec(Token{List, lp.Text})
+
+        case Macro:
+            return evalMacro(ct, ls, l)
+
         case Chan:
 
             switch len(ls) {
@@ -109,61 +132,6 @@ func (l *Lisp) Exec(f Token) (ans Token, err error) {
             default:
                 return None, ErrParaNum
             }
-
-        case Back:
-            return ct.Text.(Gfac)(ls[1:], l)
-
-        case Macro:
-            mp := ct.Text.(*Hong)
-            if len(ls) != len(mp.Para)+1 {
-                return None, ErrParaNum
-            }
-
-            xp := map[Name]Token{}
-            for i, t := range ls[1:] {
-                xp[mp.Para[i]] = t
-            }
-
-            if mp.Real == nil {
-                for i, t := range mp.Para {
-                    xp[t] = ls[1+i]
-                }
-            } else {
-                cp := map[Name]bool{}
-                for i, t := range ls[1:] {
-                    xp[mp.Para[i]] = t
-                    Collect(cp, &t)
-                }
-
-                for _, t := range mp.Real {
-                    var i Name
-                    for {
-                        i = TmpName()
-                        _, ok := cp[i]
-                        if !ok {
-                            break
-                        }
-                    }
-                    xp[t] = Token{Label, i}
-                }
-            }
-            return l.Exec(Repl(Token{List, mp.Text}, xp))
-
-        case Front:
-            lp := ct.Text.(*Lfac)
-            if len(ls) != len(lp.Para)+1 {
-                return None, ErrParaNum
-            }
-
-            q := &Lisp{dad: lp.Make, env: map[Name]Token{}}
-            q.env[Name("self")] = ct
-            for i, t := range ls[1:] {
-                q.env[lp.Para[i]], err = l.Exec(t)
-                if err != nil {
-                    return None, err
-                }
-            }
-            return q.Exec(Token{List, lp.Text})
 
         default:
             return None, ErrNotFunc(f.String())

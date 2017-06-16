@@ -1,10 +1,5 @@
 package lisp
 
-import (
-	"math/rand"
-	"time"
-)
-
 func Scan(s []byte) (list []Token, err error) {
 	scanner := pattern.NewScanner(s, true)
 	list = make([]Token, 0, 100)
@@ -101,41 +96,6 @@ func Collect(c map[Name]bool, t *Token) {
 	}
 }
 
-func TmpName() Name {
-	u := [16]byte{'_'}
-	for i := 1; i < 16; i++ {
-		switch x := rand.Uint32() % 63; {
-		case x < 26:
-			u[i] = byte(x + 'A')
-		case x < 52:
-			u[i] = byte(x + 'a' - 26)
-		case x < 62:
-			u[i] = byte(x + '0' - 52)
-		default:
-			u[i] = '_'
-		}
-	}
-	return Name(string(u[:]))
-}
-
-func Repl(tkn Token, lst map[Name]Token) Token {
-	switch tkn.Kind {
-	case List:
-		l := tkn.Text.([]Token)
-		x := make([]Token, len(l))
-		for i, t := range l {
-			x[i] = Repl(t, lst)
-		}
-		return Token{List, x}
-	case Label:
-		t, ok := lst[tkn.Text.(Name)]
-		if ok {
-			return t
-		}
-	}
-	return tkn
-}
-
 func Hard(tkn Token) Token {
 	switch tkn.Kind {
 	case List:
@@ -170,6 +130,3 @@ func Hard(tkn Token) Token {
 	return tkn
 }
 
-func init() {
-	rand.Seed(time.Now().Unix())
-}

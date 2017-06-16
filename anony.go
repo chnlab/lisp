@@ -1,6 +1,13 @@
 package lisp
 
+import (
+	"math/rand"
+	"time"
+)
+
+
 func init() {
+	rand.Seed(time.Now().UnixNano())
 
 	Add("macro", func(t []Token, p *Lisp) (ans Token, err error) {
 		var (
@@ -82,5 +89,78 @@ func init() {
 		ans = Token{Front, &Lfac{x, b.Text.([]Token), p}}
 		return ans, nil
 	})
+}
+
+func replace(tkn Token, lst map[Name]Token) Token {
+	switch tkn.Kind {
+	case List:
+		l := tkn.Text.([]Token)
+		x := make([]Token, len(l))
+		for i, t := range l {
+			x[i] = replace(t, lst)
+		}
+		return Token{List, x}
+	case Label:
+		t, ok := lst[tkn.Text.(Name)]
+		if ok {
+			return t
+		}
+	}
+	return tkn
+}
+
+func genName() Name {
+	u := [16]byte{'_'}
+	for i := 1; i < 16; i++ {
+		switch x := rand.Uint32() % 63; {
+		case x < 26:
+			u[i] = byte(x + 'A')
+		case x < 52:
+			u[i] = byte(x + 'a' - 26)
+		case x < 62:
+			u[i] = byte(x + '0' - 52)
+		default:
+			u[i] = '_'
+		}
+	}
+	return Name(string(u[:]))
+}
+
+func evalMacro(mt Token, ls []Token, p *Lisp) (Token, error) {
+    body := mt.Text.(*Hong)
+
+    if len(ls) != len(body.Para)+1 {
+        return None, ErrParaNum
+    }
+
+    xp := map[Name]Token{}
+    for i, t := range ls[1:] {
+        xp[body.Para[i]] = t
+    }
+
+    if body.Real == nil {
+        for i, t := range body.Para {
+            xp[t] = ls[1+i]
+        }
+    } else {
+        cp := map[Name]bool{}
+        for i, t := range ls[1:] {
+            xp[body.Para[i]] = t
+            Collect(cp, &t)
+        }
+
+        for _, t := range body.Real {
+            var i Name
+            for {
+                i = genName()
+                _, ok := cp[i]
+                if !ok {
+                    break
+                }
+            }
+            xp[t] = Token{Label, i}
+        }
+    }
+    return p.Exec(replace(Token{List, body.Text}, xp))
 }
 
