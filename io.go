@@ -7,10 +7,12 @@ import (
 )
 
 func init() {
+
 	Add("scan", func(t []Token, p *Lisp) (Token, error) {
 		if len(t) != 0 {
 			return None, ErrParaNum
 		}
+
 		buf := bufio.NewReader(os.Stdin)
 		one := section{}
 		for {
@@ -28,33 +30,48 @@ func init() {
 		}
 		return p.Eval([]byte(one.total))
 	})
+
 	Add("load", func(t []Token, p *Lisp) (Token, error) {
 		if len(t) != 1 {
 			return None, ErrParaNum
 		}
+
 		if t[0].Kind != String {
 			return None, ErrFitType
 		}
+
 		return p.Load(t[0].Text.(string))
 	})
-	Add("print", func(t []Token, p *Lisp) (x Token, y error) {
-		for _, i := range t {
-			x, y = p.Exec(i)
-			if y != nil {
-				return None, y
+
+
+    display := func(t []Token, p *Lisp) (Token, error) {
+        var ret Token
+
+		for i, e := range t {
+            ret, err := p.Exec(e)
+			if err != nil {
+				return None, err
 			}
-			fmt.Print(x)
-		}
-		return x, nil
-	})
-	Add("println", func(t []Token, p *Lisp) (x Token, y error) {
-		for _, i := range t {
-			x, y = p.Exec(i)
-			if y != nil {
-				return None, y
-			}
-			fmt.Println(x)
-		}
-		return x, nil
+
+            if i != 0 {
+                fmt.Print(" ")
+            }
+            fmt.Print(ret)
+        }
+        return ret, nil
+    }
+
+	Add("print", display)
+
+	Add("println", func(t []Token, p *Lisp) (Token, error) {
+
+        ret, err := display(t, p)
+        if err != nil {
+            return None, err
+        }
+
+        fmt.Print("\n")
+        return ret, nil
 	})
 }
+
