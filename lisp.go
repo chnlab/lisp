@@ -81,7 +81,7 @@ func (l *Lisp) Exec(f Token) (ans Token, err error) {
 
         case Front:
             lp := ct.Text.(*Lfac)
-            if len(ls) != len(lp.Para)+1 {
+            if len(ls) != len(lp.Para) + 1 {
                 return None, ErrParaNum
             }
 

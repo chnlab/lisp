@@ -69,11 +69,7 @@ func init() {
             b = Token{List, eachList}
         }
 
-		if a.Kind != List {
-			return None, ErrFitType
-		}
-
-		if b.Kind != List {
+		if a.Kind != List || b.Kind != List {
 			return None, ErrFitType
 		}
 
